@@ -14,24 +14,28 @@
           x86_64-linux = "linux-amd64";
           aarch64-linux = "linux-arm64";
         };
-
-        src = pkgs.fetchurl {
-          url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-darwin-universal.tar.gz";
-          hash = "sha256-o1RI9aJJCBv967F3DgA0z/Hqq7qDiMAjGWKQvZ0myRQ=";
-        };
-
         arch = archs.${system};
-
         version = "1.7.3";
 
-        pkgs = import nixpkgs { inherit system; };
+        src_urls = {
+          darwin-universal = {
+            url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-darwin-universal.tar.gz";
+            hash = "sha256-o1RI9aJJCBv967F3DgA0z/Hqq7qDiMAjGWKQvZ0myRQ=";
+          };
+          x86_64-linux = {
+            url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-linux-x86_64.tar.gz";
+            hash = "sha256-wyMXNZSMj0X19aBbmd4BI2o+QIiI6yjHq3B9qpux/Zw=";
+          };
+        };
 
+        src = pkgs.fetchurl src_urls.${arch};
+
+        pkgs = import nixpkgs { inherit system; };
       in
       {
         packages = rec {
           crystal = pkgs.callPackage ./crystal {
             inherit src;
-            stdenv = pkgs.stdenv;
           };
 
           default = crystal;

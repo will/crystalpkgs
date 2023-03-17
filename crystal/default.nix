@@ -2,6 +2,7 @@
 , src
 , lib
   # deps
+, installShellFiles
 , boehmgc
 , libevent
 , libiconv
@@ -19,7 +20,7 @@ stdenv.mkDerivation rec {
   name = "crystal";
   inherit src;
 
-  nativeBuildInputs = [ makeWrapper which pkg-config llvmPackages.llvm ];
+  nativeBuildInputs = [ makeWrapper which pkg-config installShellFiles llvmPackages.llvm ];
 
   strictDeps = true;
   outputs = [ "out" "lib" "bin" ];
@@ -48,6 +49,8 @@ stdenv.mkDerivation rec {
        --suffix PKG_CONFIG_PATH : ${openssl.dev}/lib/pkgconfig
     install -dm755 $lib/crystal
     cp -r src/* $lib/crystal/
+
+    installShellCompletion --cmd crystal etc/completion.*
 
     mkdir -p $out
     ln -s $bin/bin $out/bin

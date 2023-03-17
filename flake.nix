@@ -11,7 +11,7 @@
         archs = {
           x86_64-darwin = "darwin-universial";
           aarch64-darwin = "darwin-universal";
-          x86_64-linux = "linux-amd64";
+          x86_64-linux = "linux-x86_64";
           aarch64-linux = "linux-arm64";
         };
         arch = archs.${system};
@@ -22,7 +22,7 @@
             url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-darwin-universal.tar.gz";
             hash = "sha256-o1RI9aJJCBv967F3DgA0z/Hqq7qDiMAjGWKQvZ0myRQ=";
           };
-          x86_64-linux = {
+          linux-x86_64 = {
             url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-linux-x86_64.tar.gz";
             hash = "sha256-wyMXNZSMj0X19aBbmd4BI2o+QIiI6yjHq3B9qpux/Zw=";
           };

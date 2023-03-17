@@ -39,6 +39,7 @@ stdenv.mkDerivation rec {
   installPhase = ''
     runHook preInstall
 
+    install -Dm755 ./embedded/bin/shards $bin/bin/shards
     install -Dm755 ./embedded/bin/crystal $bin/bin/crystal
     wrapProgram $bin/bin/crystal \
        --suffix PATH : ${lib.makeBinPath [ pkg-config llvmPackages.clang which ]} \

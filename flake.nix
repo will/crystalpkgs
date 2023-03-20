@@ -9,7 +9,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         archs = {
-          x86_64-darwin = "darwin-universial";
+          x86_64-darwin = "darwin-universal";
           aarch64-darwin = "darwin-universal";
           x86_64-linux = "linux-x86_64";
           aarch64-linux = "linux-arm64";

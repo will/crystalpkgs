@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
   name = "crystal";
   inherit src;
 
-  nativeBuildInputs = [ makeWrapper which pkg-config installShellFiles llvmPackages.llvm ];
+  nativeBuildInputs = [ makeWrapper installShellFiles ];
 
   strictDeps = true;
   outputs = [ "out" "lib" "bin" ];

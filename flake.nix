@@ -6,17 +6,11 @@
   };
 
   outputs = { self, flake-utils, nixpkgs }:
-    flake-utils.lib.eachDefaultSystem (system:
+    let
+      sys = flake-utils.lib.system;
+    in
+    flake-utils.lib.eachSystem [ sys.aarch64-darwin sys.x86_64-darwin sys.x86_64-linux ] (system:
       let
-        archs = {
-          x86_64-darwin = "darwin-universal";
-          aarch64-darwin = "darwin-universal";
-          x86_64-linux = "linux-x86_64";
-          aarch64-linux = "linux-arm64";
-        };
-        arch = archs.${system};
-        version = "1.7.3";
-
         src_urls = {
           darwin-universal = {
             url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-darwin-universal.tar.gz";
@@ -28,6 +22,12 @@
           };
         };
 
+        archs = {
+          x86_64-darwin = "darwin-universal";
+          aarch64-darwin = "darwin-universal";
+          x86_64-linux = "linux-x86_64";
+        };
+        arch = archs.${system};
         src = pkgs.fetchurl src_urls.${arch};
 
         pkgs = import nixpkgs { inherit system; };

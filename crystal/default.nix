@@ -19,6 +19,7 @@
 stdenv.mkDerivation rec {
   name = "crystal";
   inherit src;
+  inherit (stdenv) isDarwin;
 
   nativeBuildInputs = [ makeWrapper installShellFiles ];
 
@@ -33,15 +34,26 @@ stdenv.mkDerivation rec {
     openssl
     pcre2
     zlib
-  ] ++ lib.optionals stdenv.isDarwin [ libiconv ];
+  ] ++ lib.optionals isDarwin [ libiconv ];
 
   dontConfigure = true;
   dontBuild = true;
+
+  tarball_bin = if isDarwin then "./embedded/bin" else "./bin";
+  tarball_src = if isDarwin then "src" else "share/crystal/src";
+  completion = if isDarwin then ''
+    installShellCompletion --cmd crystal etc/completion.*
+  '' else ''
+    installShellCompletion --bash share/bash-completion/completions/crystal
+    installShellCompletion --zsh share/zsh/site-functions/_crystal
+    installShellCompletion --fish share/fish/vendor_completions.d/crystal.fish
+  '';
+
   installPhase = ''
     runHook preInstall
 
-    install -Dm755 ./embedded/bin/shards $bin/bin/shards
-    install -Dm755 ./embedded/bin/crystal $bin/bin/crystal
+    install -Dm755 ${tarball_bin}/shards $bin/bin/shards
+    install -Dm755 ${tarball_bin}/crystal $bin/bin/crystal
     wrapProgram $bin/bin/crystal \
        --suffix PATH : ${lib.makeBinPath [ pkg-config llvmPackages.clang which ]} \
        --suffix CRYSTAL_PATH : lib:$lib/crystal \
@@ -50,9 +62,9 @@ stdenv.mkDerivation rec {
        --suffix CRYSTAL_OPTS : "-Duse_pcre2"
 
     install -dm755 $lib/crystal
-    cp -r src/* $lib/crystal/
+    cp -r ${tarball_src}/* $lib/crystal/
 
-    installShellCompletion --cmd crystal etc/completion.*
+    ${completion}
 
     mkdir -p $out
     ln -s $bin/bin $out/bin

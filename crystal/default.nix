@@ -1,6 +1,7 @@
 { stdenv
 , src
 , lib
+, substituteAll
   # deps
 , installShellFiles
 , boehmgc
@@ -13,6 +14,7 @@
 , openssl
 , pcre2
 , pkg-config
+, tzdata
 , which
 , zlib
 }:
@@ -36,18 +38,29 @@ stdenv.mkDerivation rec {
     zlib
   ] ++ lib.optionals isDarwin [ libiconv ];
 
+  prePatch = lib.optionals stdenv.isLinux ''
+    mv share/crystal/src .
+  '';
+
+  patches = [
+    (substituteAll {
+      src = ./tzdata.patch;
+      inherit tzdata;
+    })
+  ];
+
   dontConfigure = true;
   dontBuild = true;
 
   tarball_bin = if isDarwin then "./embedded/bin" else "./bin";
-  tarball_src = if isDarwin then "src" else "share/crystal/src";
-  completion = if isDarwin then ''
-    installShellCompletion --cmd crystal etc/completion.*
-  '' else ''
-    installShellCompletion --bash share/bash-completion/completions/crystal
-    installShellCompletion --zsh share/zsh/site-functions/_crystal
-    installShellCompletion --fish share/fish/vendor_completions.d/crystal.fish
-  '';
+  completion =
+    if isDarwin then ''
+      installShellCompletion --cmd crystal etc/completion.*
+    '' else ''
+      installShellCompletion --bash share/bash-completion/completions/crystal
+      installShellCompletion --zsh share/zsh/site-functions/_crystal
+      installShellCompletion --fish share/fish/vendor_completions.d/crystal.fish
+    '';
 
   installPhase = ''
     runHook preInstall
@@ -62,7 +75,8 @@ stdenv.mkDerivation rec {
        --suffix CRYSTAL_OPTS : "-Duse_pcre2"
 
     install -dm755 $lib/crystal
-    cp -r ${tarball_src}/* $lib/crystal/
+    cp -r src/* $lib/crystal/
+
 
     ${completion}
 

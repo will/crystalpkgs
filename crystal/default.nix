@@ -1,21 +1,22 @@
 { stdenv
-, src
 , lib
+, src
 , substituteAll
-  # deps
+  # install deps
 , installShellFiles
+, makeWrapper
+, which
+  # crystal common deps
 , boehmgc
 , libevent
 , libiconv
 , libxml2
 , libyaml
 , llvmPackages
-, makeWrapper
 , openssl
 , pcre2
 , pkg-config
 , tzdata
-, which
 , zlib
 }:
 stdenv.mkDerivation rec {
@@ -76,7 +77,6 @@ stdenv.mkDerivation rec {
 
     install -dm755 $lib/crystal
     cp -r src/* $lib/crystal/
-
 
     ${completion}
 

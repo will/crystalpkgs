@@ -8,6 +8,7 @@
 , which
   # crystal common deps
 , boehmgc
+, gmp
 , libevent
 , libiconv
 , libxml2
@@ -31,6 +32,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     boehmgc
+    gmp
     libevent
     libxml2
     libyaml

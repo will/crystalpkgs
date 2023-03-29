@@ -30,14 +30,28 @@
         arch = archs.${system};
         src = pkgs.fetchurl src_urls.${arch};
 
+        gh_src = pkgs.fetchFromGitHub {
+          owner = "crystal-lang";
+          repo = "crystal";
+          rev = "62f27b208211eab478d98c5d734bfc6f17807786";
+          hash = "sha256-L1SUeuifXBlwyL60an2ndsAuLhZ3RMBKxYrKygzVBI8";
+        };
+
         pkgs = import nixpkgs { inherit system; };
+
       in
       {
         packages = rec {
-          crystal = pkgs.callPackage ./crystal {
-            inherit src;
-          };
+          crystal_prebuilt = pkgs.callPackage ./crystal/prebuilt.nix { inherit src; };
+          shards = pkgs.callPackage ./crystal/shards.nix { crystal = crystal_prebuilt; inherit (pkgs) fetchFromGitHub; };
 
+          crystal = pkgs.callPackage ./crystal {
+            inherit crystal_prebuilt;
+            src = gh_src;
+            llvm = pkgs.llvm_15;
+            clang = pkgs.clang_15;
+          };
+          crystal_release = crystal.override { release = true; };
           default = crystal;
         };
       });

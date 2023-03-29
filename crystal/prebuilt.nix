@@ -2,9 +2,6 @@
 , lib
 , src
 , substituteAll
-# build deps
-, llvm
-, crystal_prebuilt
   # install deps
 , installShellFiles
 , makeWrapper
@@ -16,30 +13,24 @@
 , libiconv
 , libxml2
 , libyaml
-, clang
+, llvmPackages
 , openssl
 , pcre2
 , pkg-config
 , tzdata
 , zlib
-, libffi
-# useful
-, shards
-# options
-, release ? false
 }:
 stdenv.mkDerivation rec {
   name = "crystal";
   inherit src;
   inherit (stdenv) isDarwin;
 
-  nativeBuildInputs = [ makeWrapper installShellFiles crystal_prebuilt ];
+  nativeBuildInputs = [ makeWrapper installShellFiles ];
 
   strictDeps = true;
   outputs = [ "out" "lib" "bin" ];
 
   buildInputs = [
-    libffi
     boehmgc
     gmp
     libevent
@@ -50,6 +41,10 @@ stdenv.mkDerivation rec {
     zlib
   ] ++ lib.optionals isDarwin [ libiconv ];
 
+  prePatch = lib.optionals stdenv.isLinux ''
+    mv share/crystal/src .
+  '';
+
   patches = [
     (substituteAll {
       src = ./tzdata.patch;
@@ -58,32 +53,38 @@ stdenv.mkDerivation rec {
   ];
 
   dontConfigure = true;
+  dontBuild = true;
 
-  LLVM_CONFIG = "${llvm.dev}/bin/llvm-config";
-  FLAGS = ["--threads=\${NIX_BUILD_CORES}"];
-  CRYSTAL_CONFIG_TARGET = stdenv.targetPlatform.config;
-  buildPhase = "make interpreter=1" + lib.optionalString release " release=1";
+  tarball_bin = if isDarwin then "./embedded/bin" else "./bin";
+  completion =
+    if isDarwin then ''
+      installShellCompletion --cmd crystal etc/completion.*
+    '' else ''
+      installShellCompletion --bash share/bash-completion/completions/crystal
+      installShellCompletion --zsh share/zsh/site-functions/_crystal
+      installShellCompletion --fish share/fish/vendor_completions.d/crystal.fish
+    '';
 
   installPhase = ''
     runHook preInstall
 
-    install -Dm755 ${shards}/bin/shards $bin/bin/shards
-    install -Dm755 .build/crystal $bin/bin/crystal
+    install -Dm755 ${tarball_bin}/shards $bin/bin/shards
+    install -Dm755 ${tarball_bin}/crystal $bin/bin/crystal
     wrapProgram $bin/bin/crystal \
-       --suffix PATH : ${lib.makeBinPath [ pkg-config clang which ]} \
+       --suffix PATH : ${lib.makeBinPath [ pkg-config llvmPackages.clang which ]} \
        --suffix CRYSTAL_PATH : lib:$lib/crystal \
        --suffix CRYSTAL_LIBRARY_PATH : ${ lib.makeLibraryPath (buildInputs) } \
        --suffix PKG_CONFIG_PATH : ${openssl.dev}/lib/pkgconfig \
-       --suffix CRYSTAL_OPTS : "-Duse_pcre2" \
+       --suffix CRYSTAL_OPTS : "-Duse_pcre2"
 
     install -dm755 $lib/crystal
     cp -r src/* $lib/crystal/
 
+    ${completion}
+
     mkdir -p $out
     ln -s $bin/bin $out/bin
     ln -s $lib $out/lib
-
-    installShellCompletion etc/completion.fish etc/completion.bash etc/completion.zsh
 
     runHook postInstall
   '';

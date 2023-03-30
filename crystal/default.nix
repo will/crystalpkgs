@@ -2,9 +2,10 @@
 , lib
 , src
 , substituteAll
-# build deps
+  # build deps
 , llvm
 , crystal_prebuilt
+, tzdata
   # install deps
 , installShellFiles
 , makeWrapper
@@ -20,12 +21,11 @@
 , openssl
 , pcre2
 , pkg-config
-, tzdata
 , zlib
 , libffi
-# useful
+  # useful
 , shards
-# options
+  # options
 , release ? false
 }:
 stdenv.mkDerivation rec {
@@ -33,22 +33,14 @@ stdenv.mkDerivation rec {
   inherit src;
   inherit (stdenv) isDarwin;
 
-  nativeBuildInputs = [ makeWrapper installShellFiles crystal_prebuilt ];
-
+  enableParallelBuilding = true;
   strictDeps = true;
   outputs = [ "out" "lib" "bin" ];
 
-  buildInputs = [
-    libffi
-    boehmgc
-    gmp
-    libevent
-    libxml2
-    libyaml
-    openssl
-    pcre2
-    zlib
-  ] ++ lib.optionals isDarwin [ libiconv ];
+  nativeBuildInputs = [ makeWrapper installShellFiles crystal_prebuilt ];
+
+  buildInputs = [ libffi boehmgc gmp libevent libxml2 libyaml openssl pcre2 zlib ]
+    ++ lib.optionals isDarwin [ libiconv ];
 
   patches = [
     (substituteAll {
@@ -57,12 +49,23 @@ stdenv.mkDerivation rec {
     })
   ];
 
+  postPatch = ''
+    substituteInPlace Makefile \
+      --replace 'CRYSTAL_CONFIG_BUILD_COMMIT :=' 'CRYSTAL_CONFIG_BUILD_COMMIT ?=' \
+      --replace 'SOURCE_DATE_EPOCH :=' 'SOURCE_DATE_EPOCH ?='
+  '';
+
   dontConfigure = true;
 
   LLVM_CONFIG = "${llvm.dev}/bin/llvm-config";
-  FLAGS = ["--threads=\${NIX_BUILD_CORES}"];
   CRYSTAL_CONFIG_TARGET = stdenv.targetPlatform.config;
-  buildPhase = "make interpreter=1" + lib.optionalString release " release=1";
+  CRYSTAL_CONFIG_BUILD_COMMIT = src.rev;
+  SOURCE_DATE_EPOCH = "0";
+  buildPhase = ''
+    export CRYSTAL_CACHE_DIR=$(mktemp -d)
+    make interpreter=1 ${lib.optionalString release " release=1"}
+    rm -rf $CRYSTAL_CACHE_DIR
+  '';
 
   installPhase = ''
     runHook preInstall

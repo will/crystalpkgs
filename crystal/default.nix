@@ -55,7 +55,7 @@ stdenv.mkDerivation rec {
 
   LLVM_CONFIG = "${llvm.dev}/bin/llvm-config";
   CRYSTAL_CONFIG_TARGET = stdenv.targetPlatform.config;
-  CRYSTAL_CONFIG_BUILD_COMMIT = src.rev + lib.optionalString release "-release";
+  CRYSTAL_CONFIG_BUILD_COMMIT = (builtins.substring 0 6 src.rev) + lib.optionalString release "-release";
   SOURCE_DATE_EPOCH = "0";
   preBuild = "export CRYSTAL_CACHE_DIR=$(mktemp -d)";
   buildFlags = [ "interpreter=1" "threads=\${NIX_BUILD_CORES}" ] ++ lib.optionals release [ "release=1" ];

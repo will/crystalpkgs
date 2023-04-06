@@ -35,7 +35,10 @@ lib.fix (compiler:
     inherit src;
     inherit (stdenv) isDarwin;
 
-    passthru = {
+    passthru = rec {
+      # simple builder that sets a bunch of defaults
+      mkPkg = callPackage ./common-build-args.nix { inherit buildCrystalPackage; };
+      # base builder
       buildCrystalPackage = callPackage ./build-crystal-package.nix { crystal = compiler; };
     };
 

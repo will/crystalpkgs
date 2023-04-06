@@ -9,7 +9,6 @@ let
         format = "shards";
         lockFile = src + /shard.lock;
         shardsFile = src + /shards.nix;
-        doCheck = false;
         gitSha = self.shortRev or "dirty";
       } // args;
     in

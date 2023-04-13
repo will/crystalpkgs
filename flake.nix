@@ -44,7 +44,7 @@
         packages = rec {
           crystal_prebuilt = pkgs.callPackage ./crystal/prebuilt.nix { inherit src; };
           shards = pkgs.callPackage ./crystal/shards.nix { crystal = crystal_prebuilt; inherit (pkgs) fetchFromGitHub; };
-
+          extraWrapped = pkgs.callPackage ./crystal/extra-wrapped.nix { inherit crystal; buildInputs = [];};
           crystal = pkgs.callPackage ./crystal {
             inherit crystal_prebuilt;
             src = gh_src;

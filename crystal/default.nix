@@ -4,7 +4,7 @@
 , substituteAll
 , callPackage
   # build deps
-, llvm
+, llvmPackages
 , crystal_prebuilt
 , tzdata
   # install deps
@@ -13,7 +13,6 @@
 , which
   # crystal common deps
 , boehmgc
-, clang
 , gmp
 , libevent
 , libffi
@@ -62,7 +61,7 @@ lib.fix (compiler:
 
     dontConfigure = true;
 
-    LLVM_CONFIG = "${llvm.dev}/bin/llvm-config";
+    LLVM_CONFIG = "${llvmPackages.llvm.dev}/bin/llvm-config";
     CRYSTAL_CONFIG_TARGET = stdenv.targetPlatform.config;
     CRYSTAL_CONFIG_BUILD_COMMIT = (builtins.substring 0 6 src.rev) + lib.optionalString release "-release";
     SOURCE_DATE_EPOCH = "0";
@@ -76,7 +75,8 @@ lib.fix (compiler:
       install -Dm755 ${shards}/bin/shards $bin/bin/shards
       install -Dm755 .build/crystal $bin/bin/crystal
       wrapProgram $bin/bin/crystal \
-         --suffix PATH : ${lib.makeBinPath [ pkg-config clang which ]} \
+         --prefix PATH : ${lib.makeBinPath [ llvmPackages.clang ] } \
+         --suffix PATH : ${lib.makeBinPath [ pkg-config which ]} \
          --suffix CRYSTAL_PATH : lib:$lib/crystal \
          --suffix CRYSTAL_LIBRARY_PATH : ${ lib.makeLibraryPath (buildInputs) } \
          --suffix PKG_CONFIG_PATH : ${openssl.dev}/lib/pkgconfig \

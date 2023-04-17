@@ -13,12 +13,12 @@
       let
         src_urls = {
           darwin-universal = {
-            url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-darwin-universal.tar.gz";
-            hash = "sha256-o1RI9aJJCBv967F3DgA0z/Hqq7qDiMAjGWKQvZ0myRQ=";
+            url = "https://github.com/crystal-lang/crystal/releases/download/1.8.0/crystal-1.8.0-1-darwin-universal.tar.gz";
+            hash = "sha256-CKbciHPOU68bpgMEWhRf7+I/gDxrraorTX4CxmbTQtA=";
           };
           linux-x86_64 = {
-            url = "https://github.com/crystal-lang/crystal/releases/download/1.7.3/crystal-1.7.3-1-linux-x86_64.tar.gz";
-            hash = "sha256-wyMXNZSMj0X19aBbmd4BI2o+QIiI6yjHq3B9qpux/Zw=";
+            url = "https://github.com/crystal-lang/crystal/releases/download/1.8.0/crystal-1.8.0-1-linux-x86_64.tar.gz";
+            hash = "sha256-AAsbMB/IH8cGpndYIEwgHLYgwQj6CzLZfrEmXdf5QXc=";
           };
         };
 
@@ -33,7 +33,7 @@
         gh_src = pkgs.fetchFromGitHub {
           owner = "crystal-lang";
           repo = "crystal";
-          rev = "62f27b208211eab478d98c5d734bfc6f17807786";
+          rev = "1.8.0";
           hash = "sha256-L1SUeuifXBlwyL60an2ndsAuLhZ3RMBKxYrKygzVBI8";
         };
 
@@ -46,10 +46,9 @@
           shards = pkgs.callPackage ./crystal/shards.nix { crystal = crystal_prebuilt; inherit (pkgs) fetchFromGitHub; };
           extraWrapped = pkgs.callPackage ./crystal/extra-wrapped.nix { inherit crystal; buildInputs = [];};
           crystal = pkgs.callPackage ./crystal {
-            inherit crystal_prebuilt;
+            inherit crystal_prebuilt shards;
             src = gh_src;
-            llvm = pkgs.llvm_15;
-            clang = pkgs.clang_15;
+            llvmPackages = pkgs.llvmPackages_15;
           };
           crystal_release = crystal.override { release = true; };
           default = crystal;

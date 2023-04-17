@@ -18,8 +18,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "crystal-lang";
     repo = "shards";
-    rev = "v0.17.2";
-    hash = "sha256-2HpoMgyi8jnWYiBHscECYiaRu2g0mAH+dCY1t5m/l1s=";
+    rev = "v0.17.3";
+    hash = "sha256-vgcMB/vp685YwYI9XtJ5cTEjdnYaZY9aOMUnJBJaQoU=";
   };
   dep_molinillo = fetchFromGitHub {
     owner = "crystal-lang";

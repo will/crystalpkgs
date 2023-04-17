@@ -50,7 +50,7 @@
             src = gh_src;
           };
           extraWrapped = pkgs.callPackage ./crystal/extra-wrapped.nix { inherit crystal; buildInputs = [];};
-          crystal_release = crystal.override { release = true; };
+          crystal_dev = crystal.override { release = false; };
           default = crystal;
         };
       });

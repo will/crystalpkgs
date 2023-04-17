@@ -27,7 +27,7 @@
   # useful
 , shards
   # options
-, release ? false
+, release ? true
 }:
 lib.fix (compiler:
   stdenv.mkDerivation rec {

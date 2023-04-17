@@ -2,6 +2,7 @@
 , lib
 , src
 , substituteAll
+, version
   # install deps
 , installShellFiles
 , makeWrapper
@@ -21,8 +22,8 @@
 , zlib
 }:
 stdenv.mkDerivation rec {
-  name = "crystal";
-  inherit src;
+  pname = "crystal";
+  inherit src version;
   inherit (stdenv) isDarwin;
 
   nativeBuildInputs = [ makeWrapper installShellFiles ];

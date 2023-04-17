@@ -3,6 +3,7 @@
 , src
 , substituteAll
 , callPackage
+, version
   # build deps
 , llvmPackages
 , crystal_prebuilt
@@ -30,8 +31,8 @@
 }:
 lib.fix (compiler:
   stdenv.mkDerivation rec {
-    name = "crystal";
-    inherit src;
+    pname = "crystal";
+    inherit src version;
     inherit (stdenv) isDarwin;
 
     passthru = rec {

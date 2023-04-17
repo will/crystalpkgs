@@ -14,11 +14,12 @@
 , pcre2
 }:
 stdenv.mkDerivation rec {
-  name = "shards";
+  pname = "shards";
+  version = "0.17.3";
   src = fetchFromGitHub {
     owner = "crystal-lang";
     repo = "shards";
-    rev = "v0.17.3";
+    rev = "v${version}";
     hash = "sha256-vgcMB/vp685YwYI9XtJ5cTEjdnYaZY9aOMUnJBJaQoU=";
   };
   dep_molinillo = fetchFromGitHub {

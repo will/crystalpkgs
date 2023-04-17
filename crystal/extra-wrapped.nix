@@ -8,7 +8,8 @@
 }:
 lib.fix (compiler:
   stdenv.mkDerivation {
-    name = "crystal-extra-wrapped";
+    pname = "crystal-extra-wrapped";
+    version = crystal.version;
 
     passthru = rec {
       # simple builder that sets a bunch of defaults

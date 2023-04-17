@@ -39,18 +39,17 @@
         };
 
         pkgs = import nixpkgs { inherit system; };
-
+        llvmPackages = pkgs.llvmPackages_15;
       in
       {
         packages = rec {
-          crystal_prebuilt = pkgs.callPackage ./crystal/prebuilt.nix { inherit src version; };
+          crystal_prebuilt = pkgs.callPackage ./crystal/prebuilt.nix { inherit src version llvmPackages; };
           shards = pkgs.callPackage ./crystal/shards.nix { crystal = crystal_prebuilt; inherit (pkgs) fetchFromGitHub; };
-          extraWrapped = pkgs.callPackage ./crystal/extra-wrapped.nix { inherit crystal; buildInputs = [];};
           crystal = pkgs.callPackage ./crystal {
-            inherit crystal_prebuilt shards version;
+            inherit crystal_prebuilt shards version llvmPackages;
             src = gh_src;
-            llvmPackages = pkgs.llvmPackages_15;
           };
+          extraWrapped = pkgs.callPackage ./crystal/extra-wrapped.nix { inherit crystal; buildInputs = [];};
           crystal_release = crystal.override { release = true; };
           default = crystal;
         };
